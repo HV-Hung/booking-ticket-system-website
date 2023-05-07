@@ -1,0 +1,32 @@
+import React from "react";
+
+export const useGet = <T extends any>() => {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isError, setIsError] = React.useState(false);
+  const [result, setResult] = React.useState<T | undefined>(undefined);
+
+  const fetchGet = async (path: any) => {
+    setIsLoading(true);
+    setIsError(false);
+    const url = import.meta.env.VITE_BACKEND_URL;
+    const response = await fetch(url + path, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        setIsLoading(false);
+        if (!res.ok) setIsError(true);
+        return res.json();
+      })
+      .catch((err) => {
+        setIsError(true);
+        setIsLoading(false);
+      });
+    setResult(response);
+    return response;
+  };
+
+  return { isLoading, isError, fetchGet, result };
+};
