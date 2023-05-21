@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { SelectSeats } from "./SelectSeats";
 import { Layout } from "../../components/Layout";
-import { useGet } from "../../api/get";
 import { Food, Seat, Showtime } from "../../interface/Interface";
 import { useNavigate, useParams } from "react-router-dom";
 import { BuyFood } from "./BuyFood";
@@ -15,17 +14,15 @@ import {
   MapPinIcon,
 } from "@heroicons/react/24/outline";
 import { Steps } from "../../components/Steps";
+import useGet from "../../api/useGet";
+import { AuthContext } from "../../context/AuthContext";
 
 export const Booking = () => {
+  const param = useParams();
+  const id = param.id;
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user") ?? "null");
-  const { fetchGet: fetchShowtime, result: showtimeResult } =
-    useGet<Showtime>();
-  const {
-    fetchPost: fetchBooking,
-    result: bookingResult,
-    isError,
-  } = usePost<any>();
+  const { user, refetch } = useContext(AuthContext);
+  const { data: showtime } = useGet("showtime/" + id);
   const [step, setStep] = useState<number>(1);
   const [listSelectedSeats, setListSelectedSeats] = useState<Seat[]>([]);
   const [listFoods, setListFoods] = useState<Food[]>([]);
@@ -37,12 +34,6 @@ export const Booking = () => {
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [ageVerification, setAgeVerification] = useState<boolean>(false);
-
-  const param = useParams();
-  const id = param.id;
-  React.useEffect(() => {
-    fetchShowtime("showtime/" + id);
-  }, []);
 
   const handlePreviousClick = (step: number) => {
     if (step > 2) {
@@ -80,7 +71,7 @@ export const Booking = () => {
         openNotification("info", "Vui lòng chọn ghế để tiếp tục");
         return;
       } else {
-        if (showtimeResult?.showtime.movieId.rated.substring(0, 1) === "P") {
+        if (showtime?.movie.rated.substring(0, 1) === "P") {
           window.scroll({
             top: 0,
             left: 0,
@@ -107,22 +98,22 @@ export const Booking = () => {
     }
   };
 
-  React.useEffect(() => {
-    if (bookingResult) {
-      if (!isError) {
-        if (bookingResult?.ticket?.Showtime) {
-          openNotification("success", "Thanh toán thành công");
-          scroll(0, 0);
-          navigate("/ticket/" + bookingResult?.ticket?.id);
-        }
-      } else {
-        openNotification(
-          "error",
-          "Vé bạn chọn đã có người đặt, vui lòng đặt lại"
-        );
-      }
-    }
-  }, [bookingResult]);
+  // React.useEffect(() => {
+  //   if (bookingResult) {
+  //     if (!isError) {
+  //       if (bookingResult?.ticket?.Showtime) {
+  //         openNotification("success", "Thanh toán thành công");
+  //         scroll(0, 0);
+  //         navigate("/ticket/" + bookingResult?.ticket?.id);
+  //       }
+  //     } else {
+  //       openNotification(
+  //         "error",
+  //         "Vé bạn chọn đã có người đặt, vui lòng đặt lại"
+  //       );
+  //     }
+  //   }
+  // }, [bookingResult]);
 
   React.useEffect(() => {
     let price = 0;
@@ -162,18 +153,39 @@ export const Booking = () => {
       }
     });
 
-    fetchBooking(
-      {
+    fetch(import.meta.env.VITE_BACKEND_URL + "ticket", {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({
         showtime: id,
-        user: user.id,
         seat: code,
         foods: listFood,
         paymentMethod: paymentMethod.name,
+      }),
+      headers: {
+        "Content-Type": "application/json",
       },
-      "ticket"
-    );
+    })
+      .then((res) => {
+        if (res.ok) {
+          openNotification("success", "Thanh toán thành công");
+          scroll(0, 0);
+          refetch();
+        } else {
+          openNotification(
+            "error",
+            "Vé bạn chọn đã có người đặt, vui lòng đặt lại"
+          );
+        }
+        return res.json();
+      })
+      .then((data) => navigate("/ticket/" + data.id))
+      .catch((err) => {
+        return openNotification("error", err.message);
+      });
   };
-
+  if (!user) navigate("/login");
+  if (!showtime) return <></>;
   return (
     <>
       <Modal
@@ -183,7 +195,7 @@ export const Booking = () => {
         title="Xác nhận độ tuổi"
         content={
           "Tôi xác nhận mua vé cho người xem từ " +
-          showtimeResult?.showtime.movieId.rated.substring(1, 3) +
+          showtime?.movie.rated.substring(1, 3) +
           " tuổi trở lên và hiểu rằng UIT CINEMA sẽ không hoàn tiền nếu không chứng thực độ tuổi của khán giả."
         }
       ></Modal>
@@ -194,7 +206,7 @@ export const Booking = () => {
 
       {step === 1 && (
         <SelectSeats
-          soldSeats={showtimeResult?.showtime.seats}
+          soldSeats={showtime.seats}
           setListSelectedSeats={setListSelectedSeats}
         ></SelectSeats>
       )}
@@ -252,46 +264,43 @@ export const Booking = () => {
             <div className="relative md:h-auto h-[360px] flex md:flex-row md:space-x-5 space-x-0 flex-col md:space-y-0 space-y-5  lg:px-10 px-10 md:mx-20 mx-2 md:py-2 pt-5 bg-gradient-to-r from-sky-300 to-indigo-300 rounded">
               <div className="flex justify-center items-center space-x-5">
                 <img
-                  src={showtimeResult?.showtime.movieId.image}
+                  src={showtime?.movie.image}
                   className="w-[90px] h-[120px] rounded"
                 ></img>
                 <div className="flex flex-col justify-between space-y-1 lg:w-[300px] md:w-[200px] ">
                   <p className="font-bold line-clamp-2">
-                    {showtimeResult?.showtime.movieId.rated.substring(0, 1) ===
-                    "P" ? (
+                    {showtime?.movie.rated.substring(0, 1) === "P" ? (
                       <span className="border border-green-600 rounded text-green-600 px-1 mr-1">
                         P
                       </span>
                     ) : (
                       <span className="border border-red-500 rounded text-red-500 px-1 mr-1">
-                        {showtimeResult?.showtime.movieId.rated.substring(0, 3)}
+                        {showtime?.movie.rated.substring(0, 3)}
                       </span>
                     )}
-                    {showtimeResult?.showtime.movieId.name}
+                    {showtime?.movie.name}
                   </p>
 
                   <div className="flex items-center">
                     <p className="font-semibold">
                       <MapPinIcon className="mr-2 h-5 w-5 inline-block" />
-                      {showtimeResult?.cinema.name}
+                      {showtime?.cinema.name}
                     </p>
                   </div>
 
                   <div className="flex items-center">
                     <ClockIcon className="mr-2 h-5 w-5 inline-block" />
                     <p className="font-semibold">
-                      {showtimeResult?.showtime.time} -{" "}
-                      {showtimeResult?.showtime.time_end}
+                      {new Date(showtime?.start).toLocaleTimeString()} -{" "}
+                      {new Date(showtime?.end).toLocaleTimeString()}
                     </p>
                   </div>
 
                   <div className="flex items-center">
                     <CalendarDaysIcon className="mr-2 h-5 w-5 inline-block" />
-                    {showtimeResult && (
+                    {showtime && (
                       <p className="font-semibold">
-                        {new Date(
-                          showtimeResult?.showtime.date
-                        ).toLocaleDateString("en-UK")}
+                        {new Date(showtime?.date).toLocaleDateString("en-UK")}
                       </p>
                     )}
                   </div>
@@ -301,10 +310,7 @@ export const Booking = () => {
               <div className="md:flex grid grid-cols-2">
                 <div className="w-[150px] grid md:grid-rows-3 items-start md:pt-2">
                   <p>
-                    Phòng:{" "}
-                    <span className="font-bold">
-                      {showtimeResult?.showtime.roomId.name}
-                    </span>
+                    Phòng: <span className="font-bold">{showtime?.room}</span>
                   </p>
 
                   <p className="row-span-2">

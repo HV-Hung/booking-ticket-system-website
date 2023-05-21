@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Layout } from "../../components/Layout";
-import { useGet } from "../../api/get";
 import { Food, Ticket as TicketInterface } from "../../interface/Interface";
 import {
   ClockIcon,
@@ -10,16 +9,13 @@ import {
   BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
 import QRCode from "qrcode.react";
+import useGet from "../../api/useGet";
 
 export const Ticket = () => {
   const navigate = useNavigate();
   const param = useParams();
   const id = param.id;
-  const { fetchGet: fetchTicket, result: ticket } = useGet<TicketInterface>();
-
-  React.useEffect(() => {
-    fetchTicket("ticket/" + id);
-  }, []);
+  const { data: ticket } = useGet("ticket/" + id);
 
   return (
     <>
@@ -48,22 +44,25 @@ export const Ticket = () => {
                 </p>
                 <p className="flex">
                   <CalendarDaysIcon className="sm:h-6 sm:w-6 h-5 w-5 mr-1" />
-                  {ticket.date}
+                  {new Date(ticket.showtime.start).toLocaleDateString()}
                 </p>
                 <p className="flex">
                   <ClockIcon className="sm:h-6 sm:w-6 h-5 w-5 mr-1" />
-                  {ticket.time}
+                  {new Date(ticket.showtime.start).toLocaleTimeString()}
                 </p>
                 <p className="flex">
                   <BuildingOfficeIcon className="sm:h-6 sm:w-6 h-5 w-5 mr-1" />
-                  Phòng {ticket.room}
+                  Phòng {ticket.showtime.room}
                 </p>
               </div>
               <div className="sm:text-base text-sm font-medium">
                 <div className="w-full flex justify-between mt-12">
                   <div className="ml-0">
                     GHẾ:
-                    <span className="font-normal"> {ticket.seat}</span>
+                    <span className="font-normal">
+                      {" "}
+                      {ticket.seat.toString()}
+                    </span>
                   </div>
 
                   <span>
@@ -128,13 +127,13 @@ export const Ticket = () => {
               <div className="p-5 bg-white rounded my-5 h-[260px]">
                 <QRCode
                   id="qrcode"
-                  value={ticket.id.toString() ?? "undefined"}
+                  value={ticket.code.toString() ?? "undefined"}
                   size={200}
                   level={"H"}
                   includeMargin={false}
                 />
                 <p className="text-center font-bold my-2 sm:text-base text-sm dark:text-black">
-                  {ticket.id}
+                  {ticket.code.slice(-8)}
                 </p>
               </div>
               <p className="text-center">

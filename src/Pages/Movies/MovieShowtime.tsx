@@ -8,11 +8,13 @@ import useGet from "../../api/useGet";
 import { Spin } from "antd";
 import { MapPinIcon } from "@heroicons/react/24/outline";
 import { formattedTime } from "../Cinemas/CinemaShowtime";
+import { useNavigate } from "react-router-dom";
 
 export const MovieShowtime: React.FC<{ movieId: string }> = ({ movieId }) => {
   const [date, setDate] = React.useState<string>(
     new Date().toLocaleDateString()
   );
+  const navigate = useNavigate();
   const [provinceSelected, setProvinceSelected] = useState<Province>();
   const { data: provinces } = useGet("province", { filter: "notNull" });
   const {
@@ -36,6 +38,18 @@ export const MovieShowtime: React.FC<{ movieId: string }> = ({ movieId }) => {
       cacheTime: 0,
     }
   );
+  const handleShowtimeClick = (showtimeId: string) => {
+    navigate(`/booking/${showtimeId}`);
+    // if (user) {
+    //   scroll(0, 0);
+    //   navigate(`/booking/${showtimeId}`);
+    // } else {
+    //   localStorage.setItem("link", `/booking/${showtimeId}`);
+    //   openNotification("info", "Vui lòng đăng nhập để tiếp tục");
+    //   scroll(0, 0);
+    //   navigate(`/login`);
+    // }
+  };
 
   useEffect(() => {
     if (provinceSelected && date) refetchShowtimes();
@@ -93,9 +107,8 @@ export const MovieShowtime: React.FC<{ movieId: string }> = ({ movieId }) => {
                               <button
                                 key={showtimeDetails.id}
                                 className="lg:w-20 lg:py-[6px] sm:w-16 w-12 px-1 bg-white border-sky-700 border-2 hover:bg-sky-500 dark:hover:bg-sky-700 dark:bg-slate-800 dark:border-slate-900 rounded"
-                                onClick={
-                                  () => {}
-                                  // handleShowtimeClick(showtimeDetails.id)
+                                onClick={() =>
+                                  handleShowtimeClick(showtimeDetails.id)
                                 }
                               >
                                 {formattedTime(showtimeDetails.start)}

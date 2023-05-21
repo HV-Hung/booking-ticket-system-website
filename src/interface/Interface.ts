@@ -27,13 +27,12 @@ export interface Cinema {
 }
 
 export interface ShowtimeDetails {
-  date: Date;
   name: string;
-  time: string;
-  time_end: string;
-  seats: number[];
+  start: string;
+  end: string;
+  seats: string[];
   id: string;
-  roomId: Room;
+  room: number;
   movieId: Movie;
 }
 
@@ -77,20 +76,17 @@ export interface Ticket {
   movieName: string;
   cinemaName: string;
   movieImage: string;
-  room: number;
-  time: string;
-  date: string;
   totalTicket: number;
   totalFood: number;
+  code: string;
 }
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  phoneNumber: string;
-  password: string;
-  dayOfBirth: Date;
+  phone: string;
+  birthDay: string;
   gender: string;
 }
 

@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
 import { UserOutlined } from "@ant-design/icons";
-import { User } from "../../interface/Interface";
+import { Ticket, User } from "../../interface/Interface";
 import Barcode from "react-barcode";
 import { UserInfo } from "./UserInfo";
-import { useGet } from "../../api/get";
+
 import { ChangePassword } from "./ChangePassword";
 import { BookingHistory } from "./BookingHistory";
 import { Membership } from "./Membership";
@@ -12,6 +12,7 @@ import { openNotification } from "../../components/Notifications";
 import { Modal } from "../../components/Modal/Modal";
 import { Spin } from "antd";
 import { AuthContext } from "../../context/AuthContext";
+import useGet from "../../api/useGet";
 
 export const Profile = () => {
   const navigate = useNavigate();
@@ -19,9 +20,18 @@ export const Profile = () => {
   const searchParams = new URLSearchParams(location.search);
   const tab = searchParams.get("tab");
   const { user, isFetching } = useContext(AuthContext);
-
+  if (!user) {
+    navigate("/login");
+  }
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [confirm, setConfirm] = useState<boolean>(false);
+  const { data: tickets } = useGet("ticket/user");
+
+  const total = tickets?.reduce(
+    (total: number, ticket: Ticket) =>
+      total + ticket.totalFood + ticket.totalTicket,
+    0
+  );
 
   const handleLogout = () => {
     setOpenModal(true);
@@ -54,7 +64,7 @@ export const Profile = () => {
                   <div className="flex flex-col justify-center mx-4 mt-3">
                     <div className="m-2 flex justify-center items-center">
                       <Barcode
-                        value={user.phoneNumber}
+                        value={user.phone}
                         format="CODE128"
                         width={3}
                         height={70}
@@ -83,7 +93,12 @@ export const Profile = () => {
                 </div>
                 <p className="flex flex-row ml-[10px] mr-[10px] text-base my-3 justify-between">
                   <span>Tổng chi tiêu</span>
-                  <span className="font-bold">0 đ</span>
+                  <span className="font-bold">
+                    {total?.toLocaleString("vi", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </span>
                 </p>
               </div>
               <div className="flex flex-col pb-10">
@@ -144,10 +159,8 @@ export const Profile = () => {
               </div>
             </div>
           )}
-          {/* <div className="sm:w-2/3 w-full">
-            {tab === "userinfo" && user && (
-              <UserInfo fetchGet={fetchUser} user={user}></UserInfo>
-            )}
+          <div className="sm:w-2/3 w-full">
+            {tab === "userinfo" && user && <UserInfo></UserInfo>}
             {tab === "changepassword" && user && (
               <ChangePassword></ChangePassword>
             )}
@@ -155,7 +168,7 @@ export const Profile = () => {
               <BookingHistory userId={user?.id}></BookingHistory>
             )}
             {tab === "membership" && user && <Membership></Membership>}
-          </div> */}
+          </div>
         </div>
       )}
     </>

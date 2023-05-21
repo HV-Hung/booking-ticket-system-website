@@ -3,15 +3,16 @@ import { seatMap } from "../../components/seats";
 import { Seat } from "../../components/Seat";
 import { Seat as SeatInterface } from "../../interface/Interface";
 import { openNotification } from "../../components/Notifications";
+import { stringify } from "querystring";
 export const SelectSeats: React.FC<{
-  soldSeats: number[] | undefined;
+  soldSeats: string[];
   setListSelectedSeats: React.Dispatch<React.SetStateAction<SeatInterface[]>>;
 }> = ({ soldSeats, setListSelectedSeats }) => {
   const [selectedSeats, setSelectedSeats] = React.useState<SeatInterface[]>([]);
   const myRef = useRef<HTMLDivElement>(null);
 
   const status = (seat: SeatInterface) => {
-    if (soldSeats?.includes(seat.id)) return 2;
+    if (soldSeats?.includes(String(seat.id))) return 2;
     else if (selectedSeats.includes(seat)) return 1;
     else return 0;
   };
@@ -22,7 +23,7 @@ export const SelectSeats: React.FC<{
 
   const pickSeat = useCallback(
     (seat: SeatInterface) => {
-      if (soldSeats?.includes(seat.id)) return;
+      if (soldSeats?.includes(String(seat.id))) return;
 
       const index = selectedSeats.indexOf(seat);
       if (index === -1) {

@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Ticket } from "../../interface/Interface";
-import { useGet } from "../../api/get";
 import { useNavigate } from "react-router-dom";
 import { Pagination, Spin } from "antd";
 import {
@@ -10,28 +9,20 @@ import {
   BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
+import { AuthContext } from "../../context/AuthContext";
+import useGet from "../../api/useGet";
 
 export const BookingHistory: React.FC<{ userId: string }> = ({ userId }) => {
   const navigate = useNavigate();
-  const {
-    fetchGet: fetchTickets,
-    result: tickets,
-    isLoading,
-  } = useGet<Ticket[]>();
+  const { user } = useContext(AuthContext);
 
-  React.useEffect(() => {
-    fetchTickets("ticket/user/" + userId);
-  }, []);
+  const { data: tickets, isFetching } = useGet("ticket/user");
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const imagesPerPage = 5;
 
   const indexOfLastImage = currentPage * imagesPerPage;
   const indexOfFirstImage = indexOfLastImage - imagesPerPage;
-  const currentTickets = tickets
-    ?.slice(0)
-    .reverse()
-    .slice(indexOfFirstImage, indexOfLastImage);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -43,7 +34,7 @@ export const BookingHistory: React.FC<{ userId: string }> = ({ userId }) => {
         <h1 className="font-semibold sm:text-base">LỊCH SỬ ĐẶT VÉ</h1>
       </div>
 
-      {isLoading ? (
+      {isFetching ? (
         <div className="flex justify-center sm:min-h-screen">
           <Spin size="large" tip="Loading..." />
         </div>
@@ -52,7 +43,7 @@ export const BookingHistory: React.FC<{ userId: string }> = ({ userId }) => {
           {tickets && tickets.length > 0 ? (
             <>
               <div className="flex flex-col space-y-5">
-                {currentTickets?.map((ticket: Ticket, index) => (
+                {tickets?.map((ticket: Ticket, index: number) => (
                   <div
                     key={index}
                     className="flex sm:flex-row flex-col items-center sm:space-x-10 p-5 bg-white dark:bg-slate-800 border mx-5 rounded drop-shadow-md relative"
@@ -76,22 +67,25 @@ export const BookingHistory: React.FC<{ userId: string }> = ({ userId }) => {
                         </p>
                         <p className="flex">
                           <CalendarDaysIcon className="h-5 w-5 mr-1" />
-                          {ticket.date}
+                          {new Date(ticket.showtime.start).toLocaleDateString()}
                         </p>
                         <p className="flex">
                           <ClockIcon className="h-5 w-5 mr-1" />
-                          {ticket.time}
+                          {new Date(ticket.showtime.start).toLocaleTimeString()}
                         </p>
 
                         <p className="flex">
                           <BuildingOfficeIcon className="h-5 w-5 mr-1" />
-                          Phòng {ticket.room}
+                          Phòng {ticket.showtime.room}
                         </p>
                       </div>
                       <div className="font-medium">
                         <p>
                           GHẾ:
-                          <span className="font-bold"> {ticket.seat}</span>
+                          <span className="font-bold">
+                            {" "}
+                            {ticket.seat.toString()}
+                          </span>
                         </p>
                         <p>
                           TỔNG:

@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const navigate = useNavigate();
-  const { data: user, refetch, isFetching } = useGet("user/info");
+  const { data: user, refetch, isFetching } = useGet("auth/info");
 
   const login = async (userData: Record<string, string>) => {
     await fetch(import.meta.env.VITE_BACKEND_URL + "auth/signin", {

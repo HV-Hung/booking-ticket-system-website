@@ -96,14 +96,14 @@ export const Header = () => {
           >
             Rạp
           </Link>
-          <Link
+          {/* <Link
             to="/newsoffer"
             className={` leading-6 ${
               keyMenu === "newsoffer" ? "text-cyan-600 dark:text-cyan-300" : ""
             } hover:text-cyan-500`}
           >
             Ưu đãi
-          </Link>
+          </Link> */}
           {user ? (
             <Link
               to="/profile?tab=userinfo"
@@ -111,7 +111,7 @@ export const Header = () => {
                 keyMenu === "profile" ? "text-cyan-600 dark:text-cyan-300" : ""
               } hover:text-cyan-500`}
             >
-              Tài khoản
+              {user.name}
             </Link>
           ) : (
             <Link
