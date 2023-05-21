@@ -34,14 +34,14 @@ export const Footer = () => {
           <h3 className="font-medium text-lg mb-2">CHĂM SÓC KHÁCH HÀNG</h3>
           <p>Hotline: 2023 2023</p>
           <p>Giờ làm việc: 8:00 - 22:00</p>
-          <p>Email hỗ trợ: dohaizxc@uitcinema.vn</p>
+          <p>Email hỗ trợ: cinema@uit.vn</p>
         </div>
       </div>
 
       <div className="text-center mt-5">
-        <h3 className="text-white">CÔNG TY TNHH DOHAIZXC VIETNAM</h3>
+        <h3 className="text-white">CÔNG TY TNHH UIT VIETNAM</h3>
         <p>
-          COPYRIGHT 2023 DOHAIZXC.{" "}
+          COPYRIGHT 2023 UT.{" "}
           <span className="sm:inline-block block"> All RIGHTS RESERVED.</span>
         </p>
       </div>
