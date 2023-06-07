@@ -7,8 +7,8 @@ import { api } from "../../api/api";
 export const ValidateOTP: React.FC<{
   setStep: React.Dispatch<React.SetStateAction<number>>;
   email: string;
-  setOTP: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ setStep, email, setOTP: setOptConext }) => {
+  setOptConext: React.Dispatch<React.SetStateAction<string>>;
+}> = ({ setStep, email, setOptConext }) => {
   const mutation = useMutation(
     (values: any) => {
       return api.post("auth/validate-otp", values);

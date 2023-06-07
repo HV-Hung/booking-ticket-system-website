@@ -50,7 +50,7 @@ export const SignUp = () => {
               <ValidateOTP
                 setStep={setStep}
                 email={email}
-                setOTP={setOTP}
+                setOptConext={setOTP}
               ></ValidateOTP>
             ) : (
               <SignUp3 email={email} otp={otp}></SignUp3>
