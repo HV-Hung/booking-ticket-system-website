@@ -71,9 +71,7 @@ export const ValidateOTP: React.FC<{
 
   useEffect(() => {
     setIsOtpValid(otp.every((value) => value !== ""));
-    if (isOtpValid) {
-      setOTP(otp.join(""));
-    }
+    
   }, [otp]);
 
   const handleResend = () => {
