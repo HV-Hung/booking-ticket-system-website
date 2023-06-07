@@ -6,10 +6,18 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 export const Modal: React.FC<{
   openModal: boolean;
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setConfirm: React.Dispatch<React.SetStateAction<boolean>>;
+  setConfirm?: React.Dispatch<React.SetStateAction<boolean>>;
+  handleConfirm?: () => any;
   title: string;
   content?: string;
-}> = ({ openModal, setOpenModal, setConfirm, title, content }) => {
+}> = ({
+  openModal,
+  setOpenModal,
+  setConfirm,
+  title,
+  content,
+  handleConfirm,
+}) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -89,7 +97,8 @@ export const Modal: React.FC<{
                     className="inline-flex w-full justify-center rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 sm:ml-3 sm:w-auto"
                     onClick={() => {
                       setOpenModal(false);
-                      setConfirm(true);
+                      setConfirm?.(true);
+                      handleConfirm?.();
                     }}
                   >
                     Xác nhận
