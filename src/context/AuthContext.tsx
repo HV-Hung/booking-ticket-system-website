@@ -54,6 +54,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = () => {
     // code to logout the user and clear user data from state
+    fetch(import.meta.env.VITE_BACKEND_URL + "auth/logout", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        window.location.replace("/");
+      })
+      .catch((err) => {
+        return openNotification("error", err.message);
+      });
   };
 
   console.log({ user });

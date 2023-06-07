@@ -19,7 +19,7 @@ export const Profile = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const tab = searchParams.get("tab");
-  const { user, isFetching } = useContext(AuthContext);
+  const { user, isFetching, logout } = useContext(AuthContext);
   if (!user) {
     navigate("/login");
   }
@@ -34,7 +34,7 @@ export const Profile = () => {
   );
 
   const handleLogout = () => {
-    setOpenModal(true);
+    logout();
   };
 
   return (
